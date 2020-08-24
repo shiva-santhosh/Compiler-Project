@@ -1,0 +1,56 @@
+fun PRINT token  = case token of 
+                       Space Whitespace => print("\027[0m ") | 
+                       Int x => print("\027[31m"^Int.toString(x)) |
+                       Key If => print("\027[32mif") |
+                       Key Then => print("\027[32mthen") |
+                       Key Else => print("\027[32melse") |
+                       Key While => print("\027[32mwhile") | 
+                       Key For => print("\027[32mfor") |
+                       Key To => print("\027[32mto") |
+                       Key Do => print("\027[32mdo") |
+                       Key Let => print("\027[32mlet") |
+                       Key In => print("\027[32min") | 
+                       Key End => print("\027[32mend") |
+                       Key Of => print("\027[32mof") |
+                       Key Break => print("\027[32mbreak") |
+                       Key Nil => print("\027[32mnil") |
+                       Key Function => print("\027[32mfunction") |
+                       Key Var => print("\027[32mvar") |
+                       Key Type => print("\027[32mtype") |
+                       Key Import => print("\027[32mimport") |
+                       Key Primitive => print("\027[32mprimitve") |
+                       Key Array => print("\027[32marray") |
+                       Obj Class =>  print("\027[31mclass") |
+                       Obj Extends =>  print("\027[31mextends") |
+                       Obj Method =>  print("\027[31mmethod") |
+                       Obj New =>  print("\027[31mnew") |
+                       Sym Comma => print("\027[0m,") |
+                       Sym Colon => print("\027[0m:") |
+                       Sym SemiColon => print("\027[0m;") |
+                       Sym OpenBracket => print("\027[0m(") |
+                       Sym ClosedBracket => print("\027[0m)") |
+                       Sym OpenSquareBracket => print("\027[0m[") |
+                       Sym ClosedSquareBracket => print("\027[0m]") |
+                       Sym OpenFlowerBracket => print("\027[0m{") |
+                       Sym ClosedFlowerBracket => print("\027[0m}") |
+                       Sym FullStop => print("\027[0m.") |
+                       Sym Add => print("\027[0m+") | 
+                       Sym Sub => print("\027[0m-") | 
+                       Sym Mul => print("\027[0m*") |
+                       Sym Div => print("\027[0m/") |
+                       Sym Equal => print("\027[0m=") |
+                       Sym NotEqual => print("\027[0m<>") |
+                       Sym LessThan => print("\027[0m<") |
+                       Sym LessThanEqual => print("\027[0m<=") |
+                       Sym GreaterThan => print("\027[0m>") |
+                       Sym GreaterThanEqual => print("\027[0m>=") |
+                       Sym And => print("\027[0m&") |
+                       Sym Or => print("\027[0m|") |
+                       Sym Assign => print("\027[0m:=") |
+                       Eof SlashN => print("\027[0m" ^ "\n") |
+                       Eof SlashR => print("\027[0m\r") |
+                       Eof NandR => print("\027[0m\n\r") |
+                       Eof RandN => print("\027[0m\r\n") |
+                       Quote t => print("\027[33m"^t ) | 
+                       Comm t => print("\027[34m"^t) | 
+                       VAR t => print("\027[34m"^t) 

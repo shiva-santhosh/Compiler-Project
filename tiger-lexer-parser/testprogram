@@ -1,0 +1,12 @@
+x:=9;y:=3;
+if x+y=12 then y:=90 else 
+if 90>100 then x:=100 else if 5>100 then y:=1000 else x:=100
+
+while (x>y) do x:=100 
+
+for i:=100 to i < 110 do
+if x+y=12 then y:=90 else 
+if 90>100 then x:=100 else if 5>100 then y:=1000 else x:=100
+
+let var x:= 100 in if (x) then x:=x+3 else x:=x+5 end
+

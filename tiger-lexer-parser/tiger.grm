@@ -1,0 +1,102 @@
+%%
+
+%eop EOF
+%verbose
+%pure
+%name Expr
+
+(* The terminals or tokens of the language *)
+%term CONST of int
+    | QUOTE of string
+    | Var of string
+    | PLUS
+    | MINUS
+    | MUL
+    | DIV
+    | EOF
+    | NEWLINE 
+    | EQUAL
+    | NOTEQUAL
+    | GT
+    | LT
+    | GTE
+    | LTE
+    | AND
+    | OR
+    | ASSIGN
+    | IF
+    | THEN
+    | ELSE
+    | WHILE
+    | DO
+    | FOR
+    | TO 
+    | BREAK
+    | SEMICOLON
+    | OB
+    | CB
+    | VAR
+    | LET
+    | IN 
+    | END
+    | LBRAC
+    | RBRAC
+    | DOT
+(* The non-terminals of the language *)
+%nonterm EXP of Ast.Expr
+	| EXPS of Ast.Expr list 
+	| PROGRAM of Ast.Expr list
+	| ID of Ast.Expr
+	| FORID of Ast.Expr
+
+%noshift EOF 
+
+
+%left OR
+%left AND
+%nonassoc LT LTE GT GTE EQUAL NOTEQUAL
+%left PLUS MINUS 
+%left MUL DIV 
+
+%pos int 
+
+%% 
+
+PROGRAM : EXPS       (EXPS) 
+
+EXPS	: (* empty *) ([]) 
+	| EXP SEMICOLON EXPS ( EXP :: EXPS )
+	| EXP EXPS ( EXP :: EXPS) 
+	| EXP NEWLINE EXPS ( EXP :: EXPS) 
+
+EXP	: CONST		(Ast.Const CONST)		 	(* literals *) 
+	| VAR ID ASSIGN EXP  (Ast.Dec (ID,EXP1))
+	| ID ASSIGN EXP  (Ast.Assign (ID,EXP1)) 	        (* assignment *)
+	| IF EXP THEN EXP (Ast.If (EXP1,EXP2))
+	| IF EXP THEN EXP ELSE EXP (Ast.IfElse (EXP1,EXP2,EXP3))
+	| WHILE EXP DO EXP  ( Ast.While(EXP1,EXP2))
+	| FOR FORID TO EXP DO EXP  ( Ast.For(FORID,EXP1,EXP2))
+    	| EXP PLUS EXP  (Ast.plus EXP1 EXP2)
+	| EXP MINUS EXP (Ast.minus EXP1 EXP2)
+	| EXP MUL EXP    (Ast.mul EXP1 EXP2)
+	| EXP DIV EXP	(Ast.div1 EXP1 EXP2)
+	| EXP GT EXP	(Ast.gt EXP1 EXP2)
+	| EXP GTE EXP	(Ast.gte EXP1 EXP2)
+	| EXP LT EXP	(Ast.lt EXP1 EXP2)
+	| EXP LTE EXP	(Ast.lte EXP1 EXP2)
+	| EXP EQUAL EXP	(Ast.eq EXP1 EXP2)
+	| EXP NOTEQUAL EXP   (Ast.neq EXP1 EXP2)
+	| EXP AND EXP	(Ast.and1 EXP1 EXP2)
+	| EXP OR EXP	(Ast.or EXP1 EXP2)
+	| LET EXPS IN EXPS END (Ast.Let (EXPS1, EXPS2))
+	| BREAK (Ast.break)
+	| OB EXP CB (Ast.para EXP)
+	| Var 		(Ast.Var Var)
+	| QUOTE	        (Ast.Quote QUOTE) 
+	| ID LBRAC EXP RBRAC (Ast.Array(ID,EXP1)) 
+	| ID DOT ID     (Ast.Method(ID1,ID2))
+	| ID DOT ID OB EXP CB (Ast.MethodCall(ID1,ID2,EXP1))
+
+FORID	: ID ASSIGN EXP (Ast.Assign (ID,EXP1))
+
+ID	: Var    (Ast.Var Var)

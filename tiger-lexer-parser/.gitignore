@@ -1,0 +1,8 @@
+tigc
+tigh
+*.lex.sml
+*.grm.desc
+*.grm.sig
+*.grm.sml
+*.sml.swo
+*.sml.swp

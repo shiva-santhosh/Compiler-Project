@@ -1,0 +1,160 @@
+%%
+
+%eop EOF
+%verbose
+%pure
+%name Expr
+
+(* The terminals or tokens of the language *)
+%term CONST of int
+    | QUOTE of string
+    | Var of string
+    | PLUS
+    | MINUS
+    | MUL
+    | DIV
+    | EOF
+    | NEWLINE
+    | EQUAL
+    | NOTEQUAL
+    | GT
+    | LT
+    | GTE
+    | LTE
+    | AND
+    | OR
+    | ASSIGN
+    | IF
+    | THEN
+    | ELSE
+    | WHILE
+    | DO
+    | FOR
+    | TO
+    | BREAK
+    | SEMICOLON
+    | OB
+    | CB
+    | OSB
+    | CSB
+    | OFB
+    | CFB
+    | VAR
+    | LET
+    | IN
+    | END
+    | NEW
+	
+
+(* The non-terminals of the language *)
+%nonterm | PROGRAM of Ast.Prog 
+	|  EXP of Ast.Expr
+        |  DECS of Ast.Decs
+	|  EXPS of Ast.Expr list 
+        |  TYPE_ID of Ast.Expr
+        |  FORID of Ast.Expr
+
+
+%noshift EOF
+
+%left OR
+%left AND
+%nonassoc LT LTE GT GTE EQUAL NOTEQUAL
+%left PLUS MINUS
+%left MUL DIV
+
+%pos int
+
+%%
+
+PROGRAM : EXP | DECS           
+
+EXP    	:                () 
+	| CONST         (Ast.Const CONST)
+	| QUOTE         (Ast.Quote QUOTE)
+
+	| TYPE_ID OSB EXP CSB OF EXP ()
+	| TYPE_ID		     ()
+	| TYPE_ID OFB CFB   ()
+	| TYPE_ID OFB FORID EQUAL FORID XYZ CFB   ()
+
+	| NEW TYPE_ID 	()
+
+	| L_VALUE   ()
+
+	| TYPE_ID OB CB  ()
+	| TYPE_ID OB EXP CB  ()
+ 	| TYPE_ID OB EXP EXPC CB  ()
+
+	| MINUS EXP	()
+	| EXP PLUS EXP  (Ast.plus EXP1 EXP2)
+        | EXP MINUS EXP (Ast.minus EXP1 EXP2)
+        | EXP MUL EXP    (Ast.mul EXP1 EXP2)
+        | EXP DIV EXP   (Ast.div1 EXP1 EXP2)
+        | EXP GT EXP    (Ast.gt EXP1 EXP2)
+        | EXP GTE EXP   (Ast.gte EXP1 EXP2)
+        | EXP LT EXP    (Ast.lt EXP1 EXP2)
+        | EXP LTE EXP   (Ast.lte EXP1 EXP2)
+        | EXP EQUAL EXP (Ast.eq EXP1 EXP2)
+        | EXP NOTEQUAL EXP   (Ast.neq EXP1 EXP2)
+        | EXP AND EXP   (Ast.and1 EXP1 EXP2)
+        | EXP OR EXP    (Ast.or EXP1 EXP2)
+	| OB EXPS CB (Ast.para EXP) 
+	| BREAK (Ast.break)
+	
+	| ID ASSIGN EXP  (Ast.Assign (ID,EXP1))
+	| IF EXP THEN EXP (Ast.If (EXP1,EXP2))
+	| IF EXP THEN EXP ELSE EXP (Ast.IfElse (EXP1,EXP2,EXP3))
+	| WHILE EXP DO EXP  ( Ast.While(EXP1,EXP2))
+ 	| FOR FORID TO EXP DO EXP  ( Ast.For(FORID,EXP1,EXP2))
+	| LET DECS IN EXPS END (Ast.Let (EXPS1, EXPS2))
+
+L_VALUE : Var	      (Ast.Var Var)
+	| L_VALUE OSB EXP CSB
+
+EXPS	: 
+	| EXP 
+	| EXP SEMICOLON EXPS
+
+
+DECS   : 
+	| DEC
+        | DEC DECS
+
+DEC	: TYPE TYPE_ID EQUAL TY
+	| VARDEC
+	| FUNCTION TYPE_ID OB TYFIELDS CB EQUAL EXP 
+	| FUNCTION TYPE_ID OB TYFIELDS CB COLON TYPE_ID EQUAL EXP 
+	| PRIMITIVE TYPE_ID OB TYFIELDS CB  
+        | PRIMITIVE TYPE_ID OB TYFIELDS CB COLON TYPE_ID 
+	| IMPORT EXPSTR
+
+VARDEC	: VAR ID COLON TYPE_ID ASSIGN EXP
+	| VAR ID ASSIGN EXP  (Ast.Dec (ID,EXP1))      
+
+TY	: 
+	| TYPE_ID 
+	| TYFIELDS 
+	| TYFIELDS TY
+	| ARRAY OF TYPE_ID 
+
+TYFIELDS  : 
+	| TYPE_ID : TYPE_ID     
+        | TYPE_ID : TYPE_ID XYZ1 
+
+TYPE_ID : Var    (Ast.Var Var)
+  
+XYZ	: 
+	| COMMA TYPE_ID EQUAL TYPE_ID XYZ 
+
+XYZ1	: 
+	| COMMA TYPE_ID COLON TYPE_ID
+
+EXPC 	: 
+	| COMMA EXP EXPC
+
+FORID   : TYPE_ID ASSIGN EXP (Ast.Assign (ID,EXP1))
+
+EXPSTR	: QUOTE (Ast.Quote QUOTE)
+
+
